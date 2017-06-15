@@ -34,6 +34,11 @@
 #include "tilesetformat.h"
 
 #include <QBitmap>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+
+#include <QDebug>
 
 using namespace Tiled;
 
@@ -227,6 +232,12 @@ bool Tileset::loadFromImage(const QImage &image,
     return true;
 }
 
+static QNetworkAccessManager *nam()
+{
+    static QNetworkAccessManager nam;
+    return &nam;
+}
+
 /**
  * Tries to load the image this tileset is referring to.
  *
@@ -235,7 +246,33 @@ bool Tileset::loadFromImage(const QImage &image,
  */
 bool Tileset::loadImage()
 {
-    return loadFromImage(mImageReference.create(), mImageReference.source);
+    QUrl url(mImageReference.source);
+
+    if (url.isLocalFile()) {
+        return loadFromImage(mImageReference.create(), mImageReference.source);
+    } else {
+        // Download the file from the internet!
+        QNetworkRequest request(url);
+        QNetworkReply *reply = nam()->get(request);
+        QObject::connect(reply, &QNetworkReply::finished, [this,reply]() {
+            qDebug() << "finished";
+//            QNetworkReply *reply = static_cast<QNetworkReply*>(sender());
+            reply->deleteLater();
+
+            if (reply->error() != QNetworkReply::NoError) {
+                qWarning() << "Failed to download image:" << reply->url() << "\n"
+                           << reply->errorString();
+                mImageReference.status = LoadingError;
+                return;
+            }
+
+            QImage image;
+            image.loadFromData(reply->readAll());
+            loadFromImage(image, mImageReference.source);
+        });
+        mImageReference.status = LoadingInProgress;
+    }
+    return false;
 }
 
 /**

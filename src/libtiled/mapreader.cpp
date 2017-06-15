@@ -46,6 +46,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QUrl>
 #include <QVector>
 #include <QXmlStreamReader>
 
@@ -1137,7 +1138,7 @@ QString MapReader::errorString() const
 QString MapReader::resolveReference(const QString &reference,
                                     const QString &mapPath)
 {
-    if (!reference.isEmpty() && QDir::isRelativePath(reference))
+    if (!reference.isEmpty() && QUrl(reference).isLocalFile() && QDir::isRelativePath(reference))
         return QDir::cleanPath(mapPath + QLatin1Char('/') + reference);
     return reference;
 }
