@@ -141,7 +141,7 @@ void BrokenLinksModel::refresh()
                     }
                 }
             } else {
-                if (!tileset->imageLoaded()) {
+                if (tileset->imageStatus() == LoadingError) {
                     BrokenLink link;
                     link.type = TilesetImageSource;
                     link._tileset = tileset.data();
@@ -152,7 +152,7 @@ void BrokenLinksModel::refresh()
 
         if (auto mapDocument = qobject_cast<MapDocument*>(mDocument)) {
             for (const SharedTileset &tileset : mapDocument->map()->tilesets()) {
-                if (!tileset->fileName().isEmpty() && !tileset->loaded()) {
+                if (!tileset->fileName().isEmpty() && tileset->status() == LoadingError) {
                     BrokenLink link;
                     link.type = MapTilesetReference;
                     link._tileset = tileset.data();
@@ -547,7 +547,7 @@ void BrokenLinksWidget::tryFixLink(const BrokenLink &link)
 
         // It could be, that we have already loaded this tileset.
         SharedTileset newTileset = TilesetManager::instance()->findTileset(fileName);
-        if (!newTileset || !newTileset->loaded()) {
+        if (!newTileset || newTileset->status() == LoadingError) {
             newTileset = Tiled::readTileset(fileName, &error);
 
             if (!newTileset) {
@@ -606,7 +606,7 @@ bool BrokenLinksWidget::tryFixLink(const BrokenLink &link, const QString &newFil
 
         // It could be, that we have already loaded this tileset.
         SharedTileset newTileset = TilesetManager::instance()->findTileset(newFilePath);
-        if (!newTileset || !newTileset->loaded()) {
+        if (!newTileset || newTileset->status() == LoadingError) {
             newTileset = Tiled::readTileset(newFilePath, &error);
 
             if (!newTileset) {

@@ -367,7 +367,7 @@ SharedTileset MapReaderPrivate::readTileset()
             // Insert a placeholder to allow the map to load
             tileset = Tileset::create(QFileInfo(absoluteSource).completeBaseName(), 32, 32);
             tileset->setFileName(absoluteSource);
-            tileset->setLoaded(false);
+            tileset->setStatus(LoadingError);
         }
 
         xml.skipCurrentElement();

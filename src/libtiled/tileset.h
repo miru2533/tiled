@@ -201,9 +201,9 @@ public:
 
     SharedTileset sharedPointer() const;
 
-    void setLoaded(bool loaded);
-    bool loaded() const;
-    bool imageLoaded() const;
+    void setStatus(LoadingStatus status);
+    LoadingStatus status() const;
+    LoadingStatus imageStatus() const;
 
     void swap(Tileset &other);
 
@@ -247,7 +247,7 @@ private:
     int mNextTileId;
     QList<Terrain*> mTerrainTypes;
     bool mTerrainDistancesDirty;
-    bool mLoaded;
+    LoadingStatus mStatus;
     QColor mBackgroundColor;
     QPointer<TilesetFormat> mFormat;
 
@@ -592,31 +592,31 @@ inline SharedTileset Tileset::sharedPointer() const
 }
 
 /**
- * Sets whether this tileset was loaded successfully. This variable is true by
- * default, but it can be set to false to indicate a failed attempt at loading
- * an external tileset.
+ * Sets the status of this tileset.
  */
-inline void Tileset::setLoaded(bool loaded)
+inline void Tileset::setStatus(LoadingStatus status)
 {
-    mLoaded = loaded;
+    mStatus = status;
 }
 
 /**
- * Returns whether this tileset was loaded succesfully. Only valid for
- * external tilesets (fileName() != empty).
+ * Returns the loading status of this tileset.
+ *
+ * Only valid for external tilesets (fileName() != empty).
  */
-inline bool Tileset::loaded() const
+inline LoadingStatus Tileset::status() const
 {
-    return mLoaded;
+    return mStatus;
 }
 
 /**
- * Returns whether the image used by this tileset was loaded succesfully. Only
- * valid for tilesets based on a single image (imageSource() != empty).
+ * Returns the loading status of this tileset's image.
+ *
+ * Only valid for tilesets based on a single image (imageSource() != empty).
  */
-inline bool Tileset::imageLoaded() const
+inline LoadingStatus Tileset::imageStatus() const
 {
-    return mImageReference.loaded;
+    return mImageReference.status;
 }
 
 } // namespace Tiled
